@@ -5,7 +5,7 @@ import cv2
 model = YOLO('runs/segment/train/weights/best.pt')
 def validation(image_path):
     results = model.predict(source = image_path, conf=0.25, save=True)
-    labeled_image = cv2.imread(f"C:/Users/manue/OneDrive/Documents/4e année/Deployment of an AI model/group project/runs/segment/predict/{image_path.split("/")[-1]}")
+    labeled_image = cv2.imread(f"C:/Users/manue/OneDrive/Documents/4e année/Deployment of an AI model/group project/runs/segment/predict/{image_path.split('/')[-1]}")
     labeled_image = cv2.cvtColor(labeled_image, cv2.COLOR_BGR2RGB)
 
     plt.figure(figsize=(10,10))
