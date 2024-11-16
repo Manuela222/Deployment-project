@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Group Project: SEGMENTATION</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Group Project: SEGMENTATION</h1>
+            <h3>Team Members: Manuela.N, Daniela.S, Adam.C, Arnold.M</h3>
+        </header>
+
+        <!-- Boutons d'actions -->
+        <div class="buttons">
+            <button id="btn-annotation">Annotation</button>
+            <button id="btn-prediction">Prediction</button>
+            <button id="btn-tableau">Table</button>
+        </div>
+
+        <!-- Formulaire pour la prédiction -->
+        <div id="prediction-form" style="display: none;">
+            <form action="/predict" method="post" enctype="multipart/form-data">
+                <label for="file">Choose an image for prediction :</label>
+                <input type="file" name="file" id="file" accept="image/*" required>
+                <button type="submit">Run Prediction</button>
+            </form>
+        </div>
+
+        <!-- Section d'affichage de l'image prédite -->
+        <div id="image-container" style="display: none;">
+            <!-- Les images seront affichées ici après la prédiction -->
+        </div>
+
+        <!-- Tableau de résultats -->
+        <div id="table-container" style="display: none;">
+            <!-- Le tableau sera affiché ici -->
+        </div>
+
+        <!-- Bouton pour télécharger le CSV -->
+        <a id="download-csv" href="{{ url_for('download_csv') }}" class="btn" style="display: none;">Download Table as CSV</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

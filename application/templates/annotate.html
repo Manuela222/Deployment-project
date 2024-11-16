@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Annotation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Inclure jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Annotation</h1>
+        <!-- Bouton pour revenir à la page d'accueil -->
+        <button class="btn-home" onclick="window.location.href='/'">Back to Home</button>
+
+        <!-- Formulaire pour charger les images -->
+        <form action="/annotate" method="post" enctype="multipart/form-data">
+            <label for="files">Select images for annotation :</label>
+            <input type="file" name="files[]" id="files" accept="image/*" multiple required>
+            <button type="submit">Load Images</button>
+        </form>
+
+        {% if image_paths %}
+        <div class="annotation-content">
+            <!-- Liste des images -->
+            <div class="image-list">
+                <h2>Image List</h2>
+                <ul>
+                    {% for img_path in image_paths %}
+                    <li>
+                        <img src="{{ img_path }}" alt="Image" class="thumbnail" onclick="selectImage('{{ img_path }}')">
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Zone d'annotation -->
+            <div class="annotation-area">
+                <h2>Annotation Area</h2>
+                <canvas id="annotationCanvas"></canvas>
+                <!-- Contrôles pour l'annotation -->
+                <br>
+                <button class="btn-action" onclick="saveAnnotation()">Segmentation</button>
+                <button class="btn-action" onclick="fineTune()">Fine-tune Segmented Images</button>
+                <div id="result">
+                    <!-- Les images seront affichées ici -->
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        var currentImage = null;
+        var points = [];
+        var labels = [];
+
+        function selectImage(imageUrl) {
+            currentImage = imageUrl;
+
+            // Construire une URL absolue si nécessaire
+            if (!imageUrl.startsWith('http')) {
+                if (imageUrl.startsWith('/')) {
+                    imageUrl = imageUrl.substring(1);
+                }
+                imageUrl = window.location.origin + '/' + imageUrl;
+            }
+
+            var canvas = document.getElementById('annotationCanvas');
+            var ctx = canvas.getContext('2d');
+            var img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                // Réinitialiser les annotations précédentes
+                points = [];
+                labels = [];
+
+                // Réinitialiser les écouteurs d'événements
+                canvas.removeEventListener('click', onCanvasClick);
+                canvas.addEventListener('click', onCanvasClick);
+            };
+
+            img.onerror = function() {
+                alert("Error loading image..");
+            };
+
+            img.src = imageUrl;
+        }
+
+        function onCanvasClick(event) {
+            var canvas = event.target;
+            var rect = canvas.getBoundingClientRect();
+            var scaleX = canvas.width / rect.width;
+            var scaleY = canvas.height / rect.height;
+            var x = (event.clientX - rect.left) * scaleX;
+            var y = (event.clientY - rect.top) * scaleY;
+            points.push([x, y]);
+            labels.push(1);
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function saveAnnotation() {
+            if (currentImage == null) {
+                alert('Select an image.');
+                return;
+            }
+            $.ajax({
+                url: '/segment',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    'image_url': currentImage,
+                    'points': points,
+                    'labels': labels
+                }),
+                success: function(response) {
+                    var resultUrl = response.result_url;
+                    var resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = '';
+
+                    var originalImg = new Image();
+                    originalImg.src = currentImage;
+                    originalImg.className = 'original-image';
+
+                    var annotatedImg = new Image();
+                    annotatedImg.src = resultUrl;
+                    annotatedImg.className = 'annotated-image';
+
+                    resultDiv.appendChild(originalImg);
+                    resultDiv.appendChild(annotatedImg);
+                },
+                error: function(error) {
+                    alert('Error during the annotation.');
+                }
+            });
+        }
+
+        function fineTune() {
+            if (currentImage == null) {
+                alert('Select an image.');
+                return;
+            }
+            $.ajax({
+                url: '/finetune',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    'image_url': currentImage
+                }),
+                success: function(response) {
+                    alert('Fine-tuning succeded.');
+                },
+                error: function(error) {
+                    alert('Error during the fine-tuning.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

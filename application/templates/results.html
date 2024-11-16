@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Prediction Results</h1>
+        </header>
+
+        <!-- Affichage des images -->
+        <div id="image-container">
+            <h2>Results :</h2>
+            <div class="images">
+                <img src="{{ original_image }}" alt="Image Originale" class="image-side">
+                <img src="{{ annotated_image }}" alt="Image Prédite" class="image-side">
+            </div>
+        </div>
+
+        <!-- Tableau de résultats -->
+        <div id="table-container">
+            <h2>Prediction Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image ID</th>
+                        <th>Component</th>
+                        <th>Area</th>
+                        <th>Void %</th>
+                        <th>Max Void %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in table_data %}
+                    <tr>
+                        <td>{{ row['Image ID'] }}</td>
+                        <td>{{ row['Component'] }}</td>
+                        <td>{{ '%.2f' | format(row['Area']) }}</td>
+                        <td>{{ '%.2f' | format(row['Void %']) }}</td>
+                        <td>{{ '%.2f' | format(row['Max Void %']) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bouton pour télécharger le CSV -->
+        <a href="{{ url_for('download_csv') }}" class="btn">Download Table as CSV</a>
+
+        <!-- Bouton pour retourner à l'accueil -->
+        <a href="{{ url_for('index') }}" class="btn">Back to Home</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
