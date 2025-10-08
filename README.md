@@ -63,7 +63,7 @@ The application provides three main functionalities:
 ## Project Workflow
 
 ### 1. Main Interface
-![Main Interface]
+
 
 
 <img src = "screen.png">
@@ -73,21 +73,21 @@ The application provides three main functionalities:
 The main interface provides access to all major functionalities through clearly labeled buttons.
 
 ### 2. Annotation Interface
-![Annotation Interface]
+
 
 <img src = "Screenshot 2024-11-16 203652.png">
 
 Users can upload and annotate images using the SAM model.
 
 ### 3. Prediction Results
-![Prediction Results]
+
 
 <img src = "Screenshot 2024-11-16 203759.png">
 
 The YOLO model provides detailed segmentation with confidence scores.
 
 ### 4. Analysis Table
-![Analysis Table]
+
 
 <img src = "Screenshot 2024-11-16 203828.png">
 
